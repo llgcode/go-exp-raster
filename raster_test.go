@@ -1,6 +1,7 @@
 package raster
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"testing"
@@ -48,7 +49,10 @@ func TestFreetypeRasterizer(t *testing.T) {
 	painter.SetColor(color)
 	rasterizer.Rasterize(painter)
 
-	draw2dimg.SaveToPngFile("output/raster/TestFreetype.png", img)
+	err := draw2dimg.SaveToPngFile("output/TestFreetype.png", img)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func TestFreetypeRasterizerNonZeroWinding(t *testing.T) {
@@ -73,7 +77,10 @@ func TestFreetypeRasterizerNonZeroWinding(t *testing.T) {
 	painter.SetColor(color)
 	rasterizer.Rasterize(painter)
 
-	draw2dimg.SaveToPngFile("output/TestFreetypeRasterizerNonZeroWinding.png", img)
+	err := draw2dimg.SaveToPngFile("output/TestFreetypeRasterizerNonZeroWinding.png", img)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func TestRasterizer(t *testing.T) {
@@ -89,7 +96,10 @@ func TestRasterizer(t *testing.T) {
 	r := NewRasterizer()
 	r.Fill(mask, poly, false)
 	DrawSolidRGBA(img, mask, rgba)
-	draw2dimg.SaveToPngFile("output/TestRasterizer.png", img)
+	err := draw2dimg.SaveToPngFile("output/TestRasterizer.png", img)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func TestRasterizerNonZeroWinding(t *testing.T) {
@@ -104,7 +114,10 @@ func TestRasterizerNonZeroWinding(t *testing.T) {
 	r := NewRasterizer()
 	r.Fill(mask, poly, true)
 	DrawSolidRGBA(img, mask, rgba)
-	draw2dimg.SaveToPngFile("output/TestRasterizerNonZeroWinding.png", img)
+	err := draw2dimg.SaveToPngFile("output/TestRasterizerNonZeroWinding.png", img)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func BenchmarkFreetype(b *testing.B) {
