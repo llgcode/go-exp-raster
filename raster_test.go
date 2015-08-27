@@ -26,7 +26,7 @@ func (p *Path) LineTo(x, y float64) {
 	p.points[len(p.points)-1] = y
 }
 
-func TestFreetype(t *testing.T) {
+func TestFreetypeRasterizer(t *testing.T) {
 	var p Path
 	p.LineTo(10, 190)
 	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
@@ -51,7 +51,7 @@ func TestFreetype(t *testing.T) {
 	draw2dimg.SaveToPngFile("output/raster/TestFreetype.png", img)
 }
 
-func TestFreetypeNonZeroWinding(t *testing.T) {
+func TestFreetypeRasterizerNonZeroWinding(t *testing.T) {
 	var p Path
 	p.LineTo(10, 190)
 	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
@@ -73,10 +73,10 @@ func TestFreetypeNonZeroWinding(t *testing.T) {
 	painter.SetColor(color)
 	rasterizer.Rasterize(painter)
 
-	draw2dimg.SaveToPngFile("output/TestFreetypeNonZeroWinding.png", img)
+	draw2dimg.SaveToPngFile("output/TestFreetypeRasterizerNonZeroWinding.png", img)
 }
 
-func TestSimpleRasterizer(t *testing.T) {
+func TestRasterizer(t *testing.T) {
 	bounds := image.Rect(0, 0, 200, 200)
 	img := image.NewRGBA(bounds)
 	mask := image.NewAlpha(bounds)
@@ -89,10 +89,10 @@ func TestSimpleRasterizer(t *testing.T) {
 	r := NewRasterizer()
 	r.Fill(mask, poly, false)
 	DrawSolidRGBA(img, mask, rgba)
-	draw2dimg.SaveToPngFile("output/TestSimpleRasterizer.png", img)
+	draw2dimg.SaveToPngFile("output/TestRasterizer.png", img)
 }
 
-func TestSimpleRasterizerNonZero(t *testing.T) {
+func TestRasterizerNonZeroWinding(t *testing.T) {
 	bounds := image.Rect(0, 0, 200, 200)
 	img := image.NewRGBA(bounds)
 	mask := image.NewAlpha(bounds)
@@ -104,38 +104,6 @@ func TestSimpleRasterizerNonZero(t *testing.T) {
 	r := NewRasterizer()
 	r.Fill(mask, poly, true)
 	DrawSolidRGBA(img, mask, rgba)
-	draw2dimg.SaveToPngFile("output/TestSimpleRasterizerNonZero.png", img)
-}
-
-func TestRasterizer(t *testing.T) {
-	img := image.NewRGBA(image.Rect(0, 0, 200, 200))
-	var p Path
-	p.LineTo(10, 190)
-	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
-
-	poly := Polygon(p.points)
-	color := color.RGBA{0, 0, 0, 0xff}
-	tr := [6]float64{1, 0, 0, 1, 0, 0}
-	r := NewRasterizer8BitsSample(200, 200)
-	//PolylineBresenham(img, image.Black, poly...)
-
-	r.RenderEvenOdd(img, &color, &poly, tr)
-	draw2dimg.SaveToPngFile("output/TestRasterizer.png", img)
-}
-
-func TestRasterizerNonZeroWinding(t *testing.T) {
-	img := image.NewRGBA(image.Rect(0, 0, 200, 200))
-	var p Path
-	p.LineTo(10, 190)
-	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
-
-	poly := Polygon(p.points)
-	color := color.RGBA{0, 0, 0, 0xff}
-	tr := [6]float64{1, 0, 0, 1, 0, 0}
-	r := NewRasterizer8BitsSample(200, 200)
-	//PolylineBresenham(img, image.Black, poly...)
-
-	r.RenderNonZeroWinding(img, &color, &poly, tr)
 	draw2dimg.SaveToPngFile("output/TestRasterizerNonZeroWinding.png", img)
 }
 
@@ -191,37 +159,7 @@ func BenchmarkFreetypeNonZeroWinding(b *testing.B) {
 	}
 }
 
-func BenchmarkRasterizerNonZeroWinding(b *testing.B) {
-	var p Path
-	p.LineTo(10, 190)
-	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
-
-	poly := Polygon(p.points)
-	color := color.RGBA{0, 0, 0, 0xff}
-	tr := [6]float64{1, 0, 0, 1, 0, 0}
-	for i := 0; i < b.N; i++ {
-		img := image.NewRGBA(image.Rect(0, 0, 200, 200))
-		rasterizer := NewRasterizer8BitsSample(200, 200)
-		rasterizer.RenderNonZeroWinding(img, &color, &poly, tr)
-	}
-}
-
 func BenchmarkRasterizer(b *testing.B) {
-	var p Path
-	p.LineTo(10, 190)
-	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
-
-	poly := Polygon(p.points)
-	color := color.RGBA{0, 0, 0, 0xff}
-	tr := [6]float64{1, 0, 0, 1, 0, 0}
-	for i := 0; i < b.N; i++ {
-		img := image.NewRGBA(image.Rect(0, 0, 200, 200))
-		rasterizer := NewRasterizer8BitsSample(200, 200)
-		rasterizer.RenderEvenOdd(img, &color, &poly, tr)
-	}
-}
-
-func BenchmarkSimpleRasterizer(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
 	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
@@ -237,7 +175,7 @@ func BenchmarkSimpleRasterizer(b *testing.B) {
 	}
 }
 
-func BenchmarkSimpleRasterizerNonZero(b *testing.B) {
+func BenchmarkRasterizerNonZeroWinding(b *testing.B) {
 	var p Path
 	p.LineTo(10, 190)
 	draw2dbase.TraceCubic(&p, []float64{10, 190, 10, 10, 190, 10, 190, 190}, 0.5)
